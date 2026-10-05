@@ -258,7 +258,7 @@ public class LosslessJPEGCodec extends AbstractCodec {
 									pred = sampleC;
 									break;
 								case 4:
-									pred = sampleA + sampleB + sampleC;
+									pred = sampleA + sampleB - sampleC;
 									break;
 								case 5:
 									pred = sampleA + ((sampleB - sampleC) / 2);
