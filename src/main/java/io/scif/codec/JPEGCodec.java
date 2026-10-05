@@ -140,15 +140,14 @@ public class JPEGCodec extends AbstractCodec {
 			final int mask = (int) (Math.pow(2, nBytes * 8) - 1);
 			for (int i = 0; i < buf[0].length; i += nBytes) {
 				final int y = Bytes.toInt(buf[0], i, nBytes, options.littleEndian);
-				int cb = Bytes.toInt(buf[1], i, nBytes, options.littleEndian);
-				int cr = Bytes.toInt(buf[2], i, nBytes, options.littleEndian);
+				final int cb = Bytes.toInt(buf[1], i, nBytes, options.littleEndian) -
+					128;
+				final int cr = Bytes.toInt(buf[2], i, nBytes, options.littleEndian) -
+					128;
 
-				cb = Math.max(0, cb - 128);
-				cr = Math.max(0, cr - 128);
-
-				final int red = (int) (y + 1.402 * cr) & mask;
-				final int green = (int) (y - 0.34414 * cb - 0.71414 * cr) & mask;
-				final int blue = (int) (y + 1.772 * cb) & mask;
+				final int red = clamp(y + 1.402 * cr, mask);
+				final int green = clamp(y - 0.34414 * cb - 0.71414 * cr, mask);
+				final int blue = clamp(y + 1.772 * cb, mask);
 
 				Bytes.unpack(red, buf[0], i, nBytes, options.littleEndian);
 				Bytes.unpack(green, buf[1], i, nBytes, options.littleEndian);
@@ -174,5 +173,9 @@ public class JPEGCodec extends AbstractCodec {
 			}
 		}
 		return rtn;
+	}
+
+	private static int clamp(final double value, final int max) {
+		return (int) Math.max(0, Math.min(max, Math.round(value)));
 	}
 }
